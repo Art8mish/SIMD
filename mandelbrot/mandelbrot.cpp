@@ -58,7 +58,7 @@ int CalcMandelbrot(sf::VertexArray *pointmap, float x_off, float y_off, float pp
     float y = y0;
 
     sf::Uint8 N = 0;
-    FILE *log_f = fopen("log.txt", "w");
+    FILE *log_f = fopen("logs/log.txt", "w");
     //fprintf(log_f, "File opened dx = %.4f, dy = %.4f\n", dx, dy);
     for  (int yi = 0; yi < yMax; yi++)
     {
@@ -118,7 +118,7 @@ int CalcMandelbrotAVX2(sf::VertexArray *pointmap, float x_off, float y_off, floa
            x0 = _mm256_add_ps(x0, dx_01234567);
     __m256 y0 = _mm256_set1_ps(2 + y_off);
 
-    FILE *log_f = fopen("AVXlog.txt", "w");
+    FILE *log_f = fopen("logs/AVXlog.txt", "w");
     //fprintf(log_f, "File opened dx = %.4f, dy = %.4f\n", dx, dy);
     for  (int yi = 0; yi < yMax; yi++)
     {
@@ -153,18 +153,13 @@ int CalcMandelbrotAVX2(sf::VertexArray *pointmap, float x_off, float y_off, floa
 
             #ifndef LAB_MOD
 
-            float x0_arr[8] = {};
-            float y0_arr[8] = {};
-            float  n_arr[8] = {}; 
-            memcpy(x0_arr, &x0,   sizeof(x0_arr));
-            memcpy(y0_arr, &y0,   sizeof(y0_arr));
-            memcpy( n_arr, &cntr, sizeof(n_arr));
+
             for (int i = 0; i < 8; i++)
             {
                 int offset = ((x0[7 - i] + 2 + x_off) + (2 + y_off - y0[7 - i]) * 1000) * ppe;
                 //fprintf(log_f, "n[%d] = %f, offset = %d (x0 = %.3f, y0 = %.3f)\n", xi * 8 + i, n_arr[7 - i], offset, x0_arr[7 - i], y0_arr[7 - i]);
                 (*pointmap)[offset].position = sf::Vector2f((x0[7 - i] + 2 + x_off) * ppe, (2 + y_off - y0[7 - i]) * ppe);
-                (*pointmap)[offset].color = sf::Color{((sf::Uint8)n_arr[7 - i] % 4) * 64, (sf::Uint8)n_arr[7 - i], (sf::Uint8)n_arr[7 - i]};
+                (*pointmap)[offset].color = sf::Color{((sf::Uint8)cntr[7 - i] % 4) * 64, (sf::Uint8)cntr[7 - i], (sf::Uint8)cntr[7 - i]};
 
             }
             #endif
@@ -218,7 +213,7 @@ int PrintMandelbrot()
     sf::RenderWindow window(sf::VideoMode(1000, 1000), "Mandelbrot.exe");
     window.setFramerateLimit(60);
     sf::Font font;
-    font.loadFromFile("pixeleum-48.ttf");
+    font.loadFromFile("font/pixeleum-48.ttf");
     sf::Text FPS("0", font, 25);
     // for (int t = 0; t < 1000 * 1000; t++)
     // {
