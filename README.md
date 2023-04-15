@@ -129,7 +129,7 @@ fclose(log_f);
 
 ##### Время работы программы
 
-|     Without optimization     |
+||||     Without optimization     |
 |:----:|:-----:|:-----:|------:|
 | Flag | None  | -O1   |  -O2  |
 | t, c | 0.335 | 0.167 | 0.165 |
