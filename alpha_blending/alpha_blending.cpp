@@ -13,7 +13,7 @@
 #include <time.h>
 
 #define LAB_MOD
-//#undef  LAB_MOD
+#undef  LAB_MOD
 
 int PrintCatPic();
 
@@ -33,8 +33,18 @@ static const int FR_HEIGHT = 126;
 
 int main(int argc, char *argv[])
 {
+    clock_t start_time = clock();
+
     int err = PrintCatPic();
     ERR_CHCK(err, ERROR_PRINT_MANDELBROT);
+
+    clock_t end_time = clock();
+    double elapsed_time = (double)(end_time - start_time) /CLOCKS_PER_SEC;
+
+    FILE *log_f = fopen("logs/AVXalphalog.txt", "a");
+    ERR_CHCK(log_f == NULL, ERROR_FILE_OPENING);
+    fprintf(log_f, "    %lf с\n", elapsed_time);
+    fclose(log_f);
 
     return SUCCESS;
 }
@@ -53,17 +63,17 @@ int CalcPointmapSSE(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf:
         sf::Color color[step];
         if ((y < 550) && (y > 550 - FR_HEIGHT) && (x > 251) && (x <= 480))
         {
+
             __m128i sse_arr = CalcAlphaSSE(&front[fr_i * 4], &back[bk_i * 4]);
             //__m128i sse_arr = CalcAlpha_4(&front[fr_i * 4], &back[bk_i * 4]);
-
             
-            // for (int j = 0; j < step; j++)
-            // {
-            //     color[j] = CalcAlpha(&front[(fr_i + j) * 4], &back[(bk_i + j) * 4]);
-            //     color[j] = sf::Color{((sf::Uint8 *)&sse_arr)[j * 4], 
-            //                          ((sf::Uint8 *)&sse_arr)[j * 4 + 1], 
-            //                          ((sf::Uint8 *)&sse_arr)[j * 4 + 2]};
-            // }
+            for (int j = 0; j < step; j++)
+            {
+                //color[j] = CalcAlpha(&front[(fr_i + j) * 4], &back[(bk_i + j) * 4]);
+                color[j] = sf::Color{((sf::Uint8 *)&sse_arr)[j * 4], 
+                                     ((sf::Uint8 *)&sse_arr)[j * 4 + 1], 
+                                     ((sf::Uint8 *)&sse_arr)[j * 4 + 2]};
+            }
            
 
             fr_i += step;
@@ -116,7 +126,7 @@ int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Ui
         else
         {
             #ifndef LAB_MOD
-                color = sf::Color{back[bk_i * 4], back[bk_i * 4 + 1], back[bk_i * 4 + 2]};
+            color = sf::Color{back[bk_i * 4], back[bk_i * 4 + 1], back[bk_i * 4 + 2]};
             #endif
         }
             
@@ -233,18 +243,9 @@ int PrintCatPic()
     sf::Image tab_pic; 
     tab_pic.loadFromFile("pics/yasin.bmp");
 
-    double start_time = clock();
     int err = CalcPointmapSSE(&pointmap, cat_pic.getPixelsPtr(), tab_pic.getPixelsPtr());
     ERR_CHCK(err, ERROR_CALC_MANDELBROT);
 
-    double end_time = clock();
-
-    double elapsed_time = (double)(end_time - start_time) /CLOCKS_PER_SEC;
-
-    FILE *log_f = fopen("logs/AVXalphalog.txt", "a");
-    ERR_CHCK(log_f == NULL, ERROR_FILE_OPENING);
-    fprintf(log_f, "    done in %lf sec\n", elapsed_time);
-    fclose(log_f);
 
     #ifndef LAB_MOD
 

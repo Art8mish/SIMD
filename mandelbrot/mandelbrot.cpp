@@ -9,7 +9,7 @@
 #include <time.h>
 
 #define LAB_MOD
-//#undef  LAB_MOD
+#undef  LAB_MOD
 
 int PrintMandelbrot();
 int CalcMandelbrot(sf::VertexArray *pointmap, float x_off, float y_off, float ppe);
@@ -18,20 +18,18 @@ int CalcMandelbrotAVX2(sf::VertexArray *pointmap, float x_off, float y_off, floa
 int main(int argc, char *argv[])
 {
 
-    double start_time = (double)clock()/CLOCKS_PER_SEC;
+    clock_t start_time = clock();
 
     int err = PrintMandelbrot();
     ERR_CHCK(err, ERROR_PRINT_MANDELBROT);
 
-    double end_time = (double)clock()/CLOCKS_PER_SEC;
-
-    double elapsed_time = end_time - start_time;
+    clock_t end_time = clock();
+    double elapsed_time = (double)(end_time - start_time) /CLOCKS_PER_SEC;
 
     FILE *log_f = fopen("logs/AVXlog.txt", "a");
     ERR_CHCK(log_f == NULL, ERROR_FILE_OPENING);
-    fprintf(log_f, "    done in %lf seconds\n", elapsed_time);
+    fprintf(log_f, "    %lf\n", elapsed_time);
     fclose(log_f);
-
     return SUCCESS;
 }
 
@@ -204,7 +202,7 @@ int PrintMandelbrot()
     float ppe   = 1000/4;
      
     sf::VertexArray pointmap(sf::Points, 1000 * 1000);
-    int err = CalcMandelbrot(&pointmap, x_off, y_off, ppe);
+    int err = CalcMandelbrotAVX2(&pointmap, x_off, y_off, ppe);
     ERR_CHCK(err, ERROR_CALC_MANDELBROT);
 
     #ifndef LAB_MOD
