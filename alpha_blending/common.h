@@ -1,6 +1,19 @@
 #ifndef COMMON_H_INCLUDED
 #define COMMON_H_INCLUDED
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <unistd.h>
+
+#include <sstream>
+#include <iostream>
+
+#include <omp.h>
+
 #define SOFT_ASSERT(condition)                                                    \
             do                                                                    \
             {                                                                     \
@@ -27,6 +40,8 @@
                     return error;                           \
                 }                                           \
             } while(false)
+
+#define THREADS_NB omp_get_max_threads()
 
 enum HackToolError
 {

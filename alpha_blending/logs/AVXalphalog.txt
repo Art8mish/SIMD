@@ -1,0 +1,37 @@
+Without optimization:
+    None = done in 0.031000 seconds
+    -O1  = done in 0.027000 seconds
+    -O2  = done in 0.026000 seconds
+With SSE 4.2:
+    None = done in 0.028000 seconds
+    -O1  = done in 0.027000 seconds
+    -O2  =     
+
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.002000 seconds
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.000000 seconds
+    done in 0.001000 seconds
+    done in 0.002000 seconds
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.000000 seconds
+    done in 0.001000 seconds
+    done in 0.000000 seconds
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.001000 seconds
+    done in 0.000000 seconds
+    done in 0.000000 seconds
+    done in 0.001000s seconds
+    done in 0.000000s seconds
+    done in 0.001000s seconds
+    done in 0.000000s seconds
+    done in 0.001000s seconds
+    done in 0.001000s seconds
+    done in 0.002000s seconds
+    done in 0.001000s seconds

@@ -1,35 +1,26 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#include <unistd.h>
-
 #include "common.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <sstream>
-#include <iostream>
 
-//#include <BaseTsd.h>
 #include <WinDef.h>
 #include <wingdi.h>
 
 #include <emmintrin.h>
 #include <immintrin.h>
 
-#define LAB_MOD
-#undef  LAB_MOD
+#include <time.h>
 
+#define LAB_MOD
+//#undef  LAB_MOD
 
 int PrintCatPic();
 
-int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Uint8 *back);
+int CalcPointmap   (sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Uint8 *back);
+int CalcPointmapSSE(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Uint8 *back);
 
-sf::Color CalcAlpha(const sf::Uint8 *front, const sf::Uint8 *back);
+sf::Color CalcAlpha (const sf::Uint8 *front, const sf::Uint8 *back);
 
 __m128i CalcAlpha_4 (const sf::Uint8 *front, const sf::Uint8 *back);
 __m128i CalcAlphaSSE(const sf::Uint8 *front, const sf::Uint8 *back);
@@ -42,20 +33,16 @@ static const int FR_HEIGHT = 126;
 
 int main(int argc, char *argv[])
 {
-
     int err = PrintCatPic();
     ERR_CHCK(err, ERROR_PRINT_MANDELBROT);
 
     return SUCCESS;
 }
 
-int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Uint8 *back)
+int CalcPointmapSSE(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Uint8 *back)
 {
     int bk_pix_am = BK_WIDTH * BK_HEIGHT;
     int fr_pix_am = FR_WIDTH * FR_HEIGHT;
-
-    FILE *log_f = fopen("logs/alphalog.txt", "a");
-    ERR_CHCK(log_f == NULL, ERROR_FILE_OPENING);
 
     int step = 4;
     for (int bk_i = 0, fr_i = 0; bk_i < bk_pix_am; bk_i += step) //bk_rgbs_amnt
@@ -68,13 +55,16 @@ int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Ui
         {
             __m128i sse_arr = CalcAlphaSSE(&front[fr_i * 4], &back[bk_i * 4]);
             //__m128i sse_arr = CalcAlpha_4(&front[fr_i * 4], &back[bk_i * 4]);
-            for (int j = 0; j < step; j++)
-            {
-                //color[j] = CalcAlpha(&front[(fr_i + j) * 4], &back[(bk_i + j) * 4]);
-                color[j] = sf::Color{((sf::Uint8 *)&sse_arr)[j * 4], 
-                                     ((sf::Uint8 *)&sse_arr)[j * 4 + 1], 
-                                     ((sf::Uint8 *)&sse_arr)[j * 4 + 2]};
-            }
+
+            
+            // for (int j = 0; j < step; j++)
+            // {
+            //     color[j] = CalcAlpha(&front[(fr_i + j) * 4], &back[(bk_i + j) * 4]);
+            //     color[j] = sf::Color{((sf::Uint8 *)&sse_arr)[j * 4], 
+            //                          ((sf::Uint8 *)&sse_arr)[j * 4 + 1], 
+            //                          ((sf::Uint8 *)&sse_arr)[j * 4 + 2]};
+            // }
+           
 
             fr_i += step;
 
@@ -84,11 +74,13 @@ int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Ui
 
         else
         {
+            #ifndef LAB_MOD
             for (int j = 0; j < step; j++)
                 color[j] = sf::Color{back[(bk_i + j) * 4], back[(bk_i + j) * 4 + 1], back[(bk_i + j) * 4 + 2]};
+            #endif
         }
             
-
+        #ifndef LAB_MOD
         for (int v_i = 0; v_i < step; v_i++)
         { 
             (*pointmap)[bk_i + v_i].position = sf::Vector2f(x, y);
@@ -97,17 +89,45 @@ int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Ui
             x = (bk_i + v_i + 1) % BK_WIDTH;
             y = (bk_i + v_i + 1) / BK_WIDTH;
         }
+        #endif
     }
-
-    int err = fclose(log_f);
-    ERR_CHCK(err == EOF, ERROR_FILE_CLOSING);
 
     return SUCCESS;
 }
 
+int CalcPointmap(sf::VertexArray *pointmap, const sf::Uint8 *front, const sf::Uint8 *back)
+{
+    int bk_pix_am = BK_WIDTH * BK_HEIGHT;
+    int fr_pix_am = FR_WIDTH * FR_HEIGHT;
 
+    int step = 1;
+    for (int bk_i = 0, fr_i = 0; bk_i < bk_pix_am; bk_i += step) //bk_rgbs_amnt
+    {
+        int x = bk_i % BK_WIDTH;
+        int y = bk_i / BK_WIDTH;
 
+        sf::Color color;
+        if ((y < 550) && (y > 550 - FR_HEIGHT) && (x > 251) && (x <= 486))
+        {
+            color = CalcAlpha(&front[fr_i * 4], &back[bk_i * 4]);
+            fr_i += step;
+        }
 
+        else
+        {
+            #ifndef LAB_MOD
+                color = sf::Color{back[bk_i * 4], back[bk_i * 4 + 1], back[bk_i * 4 + 2]};
+            #endif
+        }
+            
+        #ifndef LAB_MOD
+        (*pointmap)[bk_i].position = sf::Vector2f(x, y);
+        (*pointmap)[bk_i].color    = color;
+        #endif
+    }
+
+    return SUCCESS;
+}
 
 sf::Color CalcAlpha(const sf::Uint8 *front, const sf::Uint8 *back)
 {
@@ -128,16 +148,9 @@ sf::Color CalcAlpha(const sf::Uint8 *front, const sf::Uint8 *back)
 
 #define _z 0
 
+//debug function
 __m128i CalcAlpha_4(const sf::Uint8 *front, const sf::Uint8 *back)
 {
-
-    FILE *log_f = fopen("logs/alphalog.txt", "a");
-    ERR_CHCK(log_f == NULL,  _mm_set1_epi16(0));
-
-    SIMD_LOG("front_4   ", front);
-    SIMD_LOG("back_4    ", back);
-    ENTER();
-
     sf::Uint8 a1 = front[3];
     sf::Uint8 a2 = front[7];
     sf::Uint8 a3 = front[11];
@@ -159,14 +172,8 @@ __m128i CalcAlpha_4(const sf::Uint8 *front, const sf::Uint8 *back)
                                  (BYTE)((front[1]  * a1 + back[1]  * (255 - a1)) >> 8),
                                  (BYTE)((front[0]  * a1 + back[0]  * (255 - a1)) >> 8));
 
-
-    int err = fclose(log_f);
-    ERR_CHCK(err == EOF, _mm_set1_epi16(0));
-
     return color;
 }
-
-
 
 __m128i CalcAlphaSSE(const sf::Uint8 *front, const sf::Uint8 *back)
 {
@@ -226,8 +233,18 @@ int PrintCatPic()
     sf::Image tab_pic; 
     tab_pic.loadFromFile("pics/yasin.bmp");
 
-    int err = CalcPointmap(&pointmap, cat_pic.getPixelsPtr(), tab_pic.getPixelsPtr());
+    double start_time = clock();
+    int err = CalcPointmapSSE(&pointmap, cat_pic.getPixelsPtr(), tab_pic.getPixelsPtr());
     ERR_CHCK(err, ERROR_CALC_MANDELBROT);
+
+    double end_time = clock();
+
+    double elapsed_time = (double)(end_time - start_time) /CLOCKS_PER_SEC;
+
+    FILE *log_f = fopen("logs/AVXalphalog.txt", "a");
+    ERR_CHCK(log_f == NULL, ERROR_FILE_OPENING);
+    fprintf(log_f, "    done in %lf sec\n", elapsed_time);
+    fclose(log_f);
 
     #ifndef LAB_MOD
 

@@ -1,6 +1,17 @@
 #ifndef COMMON_H_INCLUDED
 #define COMMON_H_INCLUDED
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <unistd.h>
+
+#include <sstream>
+#include <iostream>
+
 #define SOFT_ASSERT(condition)                                                    \
             do                                                                    \
             {                                                                     \
