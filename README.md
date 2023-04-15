@@ -167,8 +167,8 @@ fclose(log_f);
 #### Алгоритм и его оптимизация
 Нужно поместить изображение кота с прозрачностью на стол моего друга, увлеченного игрой в шахматы.
 
-<img src="/alpha_blending/pics/AskhatCat.bmp" name="кот" style="height: 370px;"/>
-<img src="/alpha_blending/pics/yasin.bmp" name="друг" style="height: 370px;"/>
+<img src="/alpha_blending/pics/AskhatCat.bmp" name="кот" style="height: 150px;"/>
+<img src="/alpha_blending/pics/yasin.bmp" name="друг" style="height: 200px;"/>
 
 ##### Код неоптимизированного алгоритма
 ```C++
@@ -180,7 +180,7 @@ sf::Color color = sf::Color{(BYTE)((front[0] * a + back[0] * (255 - a)) >> 8),
 Здесь `а` - прозрачность (альфа-канал) накладываемого изображения. `Color` - это 4 байта отвечающие за цвет пикселя (по байту на компоненту цвета и байт на альфа-канал).
 
 Получим итоговое изображение
-<img src="/pics/yasin+kot.bmp" name="кот-друг" style="height: 370px;"/>
+<img src="/pics/yasin+kot.png" name="кот-друг" style="height: 300px;"/>
 
 Теперь оптимизируем данный алгоритм с помощью набора команд `SSE4` из библиотеки `<nmmintrin.h>`. `SSE4` отличается от `AVX2` урезанным набором команд, это просто более старая технология.
 
