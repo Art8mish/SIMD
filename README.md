@@ -250,6 +250,7 @@ sf::Color color = sf::Color{(BYTE)((front[0] * a + back[0] * (255 - a)) >> 8),
 1. SIMD:
     - https://ru.wikipedia.org/wiki/SIMD
     - https://habr.com/ru/articles/440566/
+    - https://russianblogs.com/article/13881254588/
     - https://www.laruence.com/sse
 
 2. Множество Мандельброта:
