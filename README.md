@@ -138,7 +138,7 @@ for  (int yi = 0; yi < yMax; yi++)
 
 Скомпилированный ассемблерный код при -O2 в тестовом режиме выглядит следующим образом:
 
-<img src="/pics/asm.png" style="height: 300px;"/>
+<img src="/pics/asm.png" style="height: 150px;"/>
 
 
 
